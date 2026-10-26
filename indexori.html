@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoFix — Automotive Diagnostic Workspace</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#0a1019;--surface:#101a28;--surface2:#152235;--surface3:#1b2b40;--line:#293b52;--text:#edf4fc;--muted:#91a4bb;--blue:#45adff;--blue2:#167fe0;--green:#40d6a2;--red:#ff6a7c;--amber:#ffcb70;--radius:14px;--shadow:0 12px 34px #0003}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 65% -20%,#17355566,transparent 48%),var(--bg);color:var(--text);font:14px/1.5 Inter,"Segoe UI",Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:wait}a{color:inherit}.app{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:246px;padding:22px 15px;background:#0c1420;border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:10}.brand{display:flex;align-items:center;gap:11px;padding:2px 10px 25px;border-bottom:1px solid #243449}.brand-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#48b5ff,#1169c8);color:#041322;font-size:23px;box-shadow:0 5px 18px #1686e944}.brand-name{font-size:21px;font-weight:850;letter-spacing:-.7px}.brand-sub{font-size:10px;letter-spacing:1.3px;color:var(--muted);text-transform:uppercase}.nav-label{font-size:10px;letter-spacing:1.4px;color:#687e97;text-transform:uppercase;padding:22px 12px 8px}.nav{display:grid;gap:5px}.nav button{width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;background:transparent;border:1px solid transparent;border-radius:10px;color:#aebed0;text-align:left;font-weight:600}.nav button .ico{width:22px;text-align:center;font-size:17px}.nav button:hover{background:#172538;color:#fff}.nav button.active{background:linear-gradient(100deg,#1b4267,#172a40);border-color:#2b5277;color:#f2f8ff}.sidebar-bottom{margin-top:auto}.account-chip{padding:12px;border:1px solid var(--line);border-radius:11px;background:#111d2c;overflow-wrap:anywhere}.account-chip .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px}.account-chip small{display:block;color:var(--muted);margin-top:5px;font-size:11px}.main{margin-left:246px;min-width:0}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 30px;border-bottom:1px solid var(--line);background:#0c1420d9;backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.top-title{font-size:16px;font-weight:750}.top-sub{font-size:12px;color:var(--muted);margin-top:2px}.top-actions{display:flex;gap:9px;align-items:center}.content{width:min(1400px,100%);margin:auto;padding:27px 30px 55px}.view{display:none}.view.active{display:block}.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px}.eyebrow{font-size:11px;color:var(--blue);font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.page-heading h1{font-size:27px;line-height:1.2;margin:5px 0 7px;letter-spacing:-.8px}.page-heading p{margin:0;color:var(--muted);max-width:650px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:9px;padding:10px 14px;background:linear-gradient(135deg,#52b7ff,#1880e2);color:#061321;font-weight:750;transition:.18s;white-space:nowrap}.btn:hover{filter:brightness(1.09);transform:translateY(-1px)}.btn.secondary{background:#1a2a3e;color:#e0edfc;border-color:#344a63}.btn.ghost{background:transparent;color:#b8c9dd;border-color:#31445c}.btn.success{background:linear-gradient(135deg,#54e7b5,#1db584);color:#06271c}.btn.danger{background:#40232e;color:#ffdbe0;border-color:#6d3544}.btn.small{padding:7px 10px;font-size:12px}.icon-btn{width:38px;height:38px;border:1px solid var(--line);border-radius:10px;background:#142235;color:#dcecff;font-size:17px}.panel{background:linear-gradient(145deg,#121e2d,#0f1926);border:1px solid var(--line);border-radius:var(--radius);padding:21px;box-shadow:var(--shadow);min-width:0}.panel-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.panel-title h2{font-size:16px;margin:0}.panel-title p{font-size:12px;color:var(--muted);margin:3px 0 0}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,.9fr);gap:18px}.hero-search{position:relative;overflow:hidden;padding:27px;background:linear-gradient(120deg,#142c45,#102033 65%,#152236);border:1px solid #2d4d6b;border-radius:16px;margin-bottom:18px}.hero-search:after{content:"⚙";position:absolute;right:25px;top:-40px;font-size:180px;color:#70bfff0b;pointer-events:none}.hero-search h2{font-size:22px;margin:0 0 5px;position:relative;z-index:1}.hero-search p{color:#a9bdd2;margin:0 0 19px;position:relative;z-index:1}.searchbar{display:flex;gap:9px;position:relative;z-index:1}.searchbar input{flex:1;min-width:0}.search-hint{color:#8ca4bd;font-size:11px;margin-top:10px;position:relative;z-index:1}.field{min-width:0}.field label{display:block;color:#c8d8e9;font-size:12px;font-weight:700;margin-bottom:6px}.control{width:100%;background:#0a1421;border:1px solid #2a3d53;border-radius:9px;padding:11px 12px;color:var(--text);outline:none;min-width:0}.control::placeholder{color:#637b94}.control:focus{border-color:var(--blue);box-shadow:0 0 0 3px #45adff20}.control[type=file]{padding:8px}.control[type=file]::file-selector-button{border:0;border-radius:6px;background:#23415f;color:#e5f3ff;padding:7px 10px;margin-right:9px;cursor:pointer}textarea.control{min-height:100px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.full{grid-column:1/-1}.form-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:19px}.muted{color:var(--muted)}.small{font-size:12px}.notice{padding:11px 13px;border-radius:9px;margin:13px 0;background:#182e45;border:1px solid #2a4c6b;color:#d9ecff;overflow-wrap:anywhere}.notice.error{background:#40232c;border-color:#773b4a;color:#ffdce1}.notice.success{background:#15372f;border-color:#286d55;color:#c9ffeb}.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}.stat{padding:17px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(140deg,#152438,#101b29)}.stat-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}.stat-icon{width:31px;height:31px;display:grid;place-items:center;border-radius:9px;background:#1d3a57;color:#75c3ff;font-size:16px}.stat-number{font-size:26px;font-weight:850;letter-spacing:-.7px;margin-top:8px}.stat-caption{font-size:11px;color:#8499b0}.quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.quick-action{display:flex;align-items:center;gap:12px;text-align:left;padding:13px;background:#142236;border:1px solid #2b4058;border-radius:11px;color:var(--text)}.quick-action:hover{border-color:#4778a4;background:#192b41}.quick-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:#203c59;font-size:19px}.quick-action strong{display:block;font-size:13px}.quick-action small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.case-toolbar{display:grid;grid-template-columns:minmax(180px,1.5fr) minmax(130px,.8fr) minmax(130px,.8fr);gap:10px;margin-bottom:15px}.case-list{display:grid;gap:13px}.case-card{background:linear-gradient(145deg,#142236,#101a28);border:1px solid #2b4059;border-radius:13px;padding:18px;min-width:0;transition:.18s;position:relative;overflow:hidden}.case-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--blue),transparent 85%)}.case-card:hover{border-color:#43658a;transform:translateY(-1px)}.case-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.case-card h3{font-size:18px;line-height:1.3;margin:0 0 7px;overflow-wrap:anywhere}.case-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;border:1px solid #36526f;border-radius:20px;padding:4px 9px;font-size:10px;background:#263b53;color:#e1edff;white-space:nowrap}.badge.published{background:#19463766;border-color:#26795b;color:#b9ffe4}.badge.draft{background:#7b5c3133;border-color:#7b5c31;color:#ffe2a7}.case-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}.case-detail{padding:10px 12px;background:#0c1724;border:1px solid #22354a;border-radius:9px;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;font-size:12px;color:#cbd9e8}.case-detail strong{display:block;color:#78c1ff;font-size:10px;letter-spacing:.65px;text-transform:uppercase;margin-bottom:4px}.case-detail.solution{border-color:#2a594d}.case-detail.solution strong{color:#62dfb3}.case-photos,.photo-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:9px;margin-top:13px}.case-photos a{display:block;min-width:0}.case-photos img,.photo-preview img{display:block;width:100%;height:100px;object-fit:cover;border:1px solid #344a63;border-radius:8px;background:#09121e;transition:.2s}.case-photos img:hover,.photo-preview img:hover{border-color:var(--blue);transform:scale(1.02)}.photo-preview-item{min-width:0}.photo-preview-item .small{overflow-wrap:anywhere;margin-top:5px}.photo-preview-item button{width:100%;margin-top:6px}.empty{padding:35px 15px;text-align:center;color:var(--muted);border:1px dashed #31465e;border-radius:12px;background:#0e192880}.section-spacer{margin-top:18px}.auth-layout{max-width:640px;margin:25px auto}.auth-layout .panel{padding:25px}.auth-intro{text-align:center;margin-bottom:20px}.auth-logo{font-size:35px}.auth-intro h1{font-size:25px;margin:8px 0}.mobile-menu{display:none}.footer-note{color:#667f98;font-size:11px;margin-top:22px;text-align:center}.count-label{font-size:12px;color:var(--muted);margin:9px 0 12px}.top-user{font-size:12px;color:#c5d5e7;max-width:230px;overflow-wrap:anywhere}.mobile-nav{display:none}
+
+.landing-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr);gap:24px;align-items:center;padding:clamp(24px,4vw,48px);border:1px solid #2d4d6b;border-radius:20px;background:radial-gradient(circle at 85% 20%,#23649a55,transparent 34%),linear-gradient(120deg,#142c45,#0e1b2b 68%,#14253a);overflow:hidden;position:relative;min-height:390px}.landing-copy{position:relative;z-index:1}.landing-copy h1{font-size:clamp(30px,4vw,48px);line-height:1.08;letter-spacing:-1.5px;max-width:760px;margin:14px 0 17px}.landing-copy p{font-size:15px;color:#b4c7db;max-width:720px;margin:0}.landing-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}.landing-note{font-size:12px;color:#91a9c1;margin-top:14px}.landing-visual{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}.landing-gear{font-size:clamp(100px,15vw,190px);line-height:1;color:#6dc1ff;filter:drop-shadow(0 12px 32px #1686e955);text-shadow:0 0 50px #1686e955}.landing-code{font-size:10px;letter-spacing:2px;color:#91cfff;border:1px solid #3e6c91;background:#10253a;padding:10px 14px;border-radius:30px;margin-top:-8px}.landing-pill{font-size:11px;color:#d9eaff;background:#1b3854;border:1px solid #315a7d;padding:8px 13px;border-radius:8px;margin-top:14px;text-align:center}.landing-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:18px}.landing-feature h2{font-size:16px;margin:11px 0 6px}.landing-feature p{font-size:12px;color:var(--muted);min-height:58px;margin:0 0 15px}.feature-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#1c3b59;color:#80c9ff;font-size:22px}.landing-bottom{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:18px;padding:18px 20px;border:1px solid var(--line);border-radius:13px;background:#101b29}.landing-bottom strong{display:block;font-size:15px}.landing-bottom span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+@media(max-width:1100px){.landing-hero{grid-template-columns:minmax(0,1.2fr) minmax(180px,.8fr);padding:28px}.landing-features{gap:10px}}
+@media(max-width:760px){.landing-hero{grid-template-columns:1fr;padding:23px 17px;gap:8px;min-height:0}.landing-copy h1{font-size:31px;letter-spacing:-.8px}.landing-copy p{font-size:13px}.landing-visual{min-height:130px;flex-direction:row;gap:10px;flex-wrap:wrap}.landing-gear{font-size:78px}.landing-code{font-size:8px;padding:8px;margin:0}.landing-pill{margin:0}.landing-actions{flex-direction:column}.landing-actions .btn{width:100%;white-space:normal}.landing-features{grid-template-columns:1fr}.landing-feature p{min-height:0}.landing-bottom{align-items:flex-start;flex-direction:column}.top-actions{gap:5px}.top-actions .btn{padding:7px 8px;font-size:10px}.mobile-nav button{font-size:9px}}
+
+@media(max-width:1100px){.sidebar{width:218px}.main{margin-left:218px}.content{padding:22px}.topbar{padding:0 22px}.dashboard-grid{grid-template-columns:1fr}.hero-search:after{font-size:140px;right:10px}.case-toolbar{grid-template-columns:1fr 1fr}.case-toolbar .field:first-child{grid-column:1/-1}}
+@media(max-width:760px){.sidebar{width:100%;height:auto;inset:auto 0 0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);background:#0c1420f5;backdrop-filter:blur(16px);display:block}.brand,.sidebar .nav-label,.sidebar-bottom{display:none}.mobile-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.nav{display:contents}.nav button{display:flex;flex-direction:column;gap:2px;justify-content:center;text-align:center;padding:7px 3px;border-radius:9px;font-size:10px}.nav button .ico{font-size:18px;width:auto}.nav button.active{background:#1b4267;border-color:#2b5277}.main{margin-left:0;padding-bottom:83px}.topbar{height:62px;padding:0 15px}.top-title{font-size:14px}.top-sub{font-size:10px}.top-actions .btn{padding:8px 10px;font-size:11px}.top-user{display:none}.content{padding:18px 13px 30px}.page-heading{margin-bottom:17px}.page-heading h1{font-size:23px}.page-heading p{font-size:12px}.panel{padding:16px;border-radius:12px}.hero-search{padding:20px 16px}.hero-search h2{font-size:19px}.hero-search:after{font-size:100px;top:-15px;right:-10px}.searchbar{flex-direction:column}.searchbar .btn{width:100%}.stats{gap:8px}.stat{padding:12px 10px}.stat-number{font-size:22px}.stat-top{font-size:10px;align-items:flex-start}.stat-icon{width:26px;height:26px}.stat-caption{font-size:10px}.quick-actions{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr;gap:13px}.full{grid-column:auto}.case-toolbar{grid-template-columns:1fr}.case-toolbar .field:first-child{grid-column:auto}.case-card{padding:15px}.case-card h3{font-size:16px}.case-summary{grid-template-columns:1fr}.case-card-head{gap:8px}.case-photos,.photo-preview{grid-template-columns:repeat(auto-fill,minmax(75px,1fr))}.case-photos img,.photo-preview img{height:83px}.form-actions .btn{flex:1}.footer-note{padding-bottom:6px}}
+@media(min-width:761px) and (max-width:900px){.sidebar{width:190px;padding:18px 10px}.main{margin-left:190px}.content{padding:18px}.topbar{padding:0 18px}.brand-name{font-size:18px}}
+
+/* Public landing and access gate */
+.app.logged-out .sidebar,.app.logged-out .topbar{display:none}
+.app.logged-out .main{margin-left:0}
+.app.logged-out .content{width:100%;max-width:none;padding:0}
+.app.logged-out #view-account{padding:30px 18px 55px;min-height:100vh;background:radial-gradient(ellipse at top,#14314d 0%,#08111d 58%)}
+.app.logged-out #view-account .auth-layout{margin:22px auto}
+.public-header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px clamp(18px,4.5vw,68px);border-bottom:1px solid #35506a99;background:#06101bd9;backdrop-filter:blur(12px)}
+.public-brand{display:flex;align-items:center;gap:10px;font-size:29px;font-weight:850;letter-spacing:-1px;white-space:nowrap}
+.public-brand>span:nth-child(2) span{color:#20a5ff}
+.public-brand-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:50%;background:linear-gradient(145deg,#4db7ff,#0874d7);color:#06111d;font-size:25px}
+.public-brand small{font-size:12px;font-weight:450;letter-spacing:0;color:#a9bfd6;border-left:1px solid #39516a;padding-left:18px;margin-left:8px;white-space:normal}
+.public-header-actions{display:flex;gap:10px;flex-shrink:0}
+.public-hero{position:relative;isolation:isolate;min-height:calc(100vh - 81px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;background:#050d17 url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjEwMDAiIHZpZXdCb3g9IjAgMCAxNjAwIDEwMDAiPgo8ZGVmcz4KIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjMDYxMDFkIi8+PHN0b3Agb2Zmc2V0PSIuNTIiIHN0b3AtY29sb3I9IiMwNzE4MmEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMjA4MTIiLz48L2xpbmVhckdyYWRpZW50PgogPGxpbmVhckdyYWRpZW50IGlkPSJjYXIiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjMWNhOGZmIiBzdG9wLW9wYWNpdHk9Ii42Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWM2ZWM0IiBzdG9wLW9wYWNpdHk9Ii4xMiIvPjwvbGluZWFyR3JhZGllbnQ+CiA8cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQyIiBoZWlnaHQ9IjQyIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNNDIgMEgwVjQyIiBmaWxsPSJub25lIiBzdHJva2U9IiMxNTM0NTEiIHN0cm9rZS13aWR0aD0iLjciIG9wYWNpdHk9Ii40NSIvPjwvcGF0dGVybj4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTYwMCIgaGVpZ2h0PSIxMDAwIiBmaWxsPSJ1cmwoI2JnKSIvPjxyZWN0IHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjEwMDAiIGZpbGw9InVybCgjZ3JpZCkiLz4KPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTY4OWU2IiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9Ii41OCI+CiA8cGF0aCBkPSJNMCAxOTBIMTgwVjI0NUgzMTBWMTcwSDQzMFYyMjVINTMwTTAgMjIwSDEyMFYzMTVIMjQ1VjM1NUg0MDBWMzA1SDUwNSIvPjxwYXRoIGQ9Ik0xNjAwIDE2MEgxNDQwVjIxMEgxMzMwVjE0NUgxMjAwVjI1MEgxMDgwTTE2MDAgMjEwSDE1MTBWMzE1SDEzOTBWMzU1SDEyNjBWMzAwSDExMzAiLz4KIDxwYXRoIGQ9Ik0wIDY1MEgxMzBWNTkwSDI3MFY2ODBIMzkwVjYyNUg0ODBNMTYwMCA2ODBIMTQ4MFY2MjBIMTM3MFY3MDBIMTIzMFY2NTBIMTEzMCIvPgogPHBhdGggZD0iTTgwIDBWMTA1SDE4MFYxNDVIMjY1VjEwMEgzNTBWME0xMjUwIDBWODVIMTM1MFYxMzBIMTQ1MFY3NUgxNTUwVjAiLz4KIDxwYXRoIGQ9Ik0wIDgyNUgxNzBWNzcwSDMwMFY4MzBINDIwVjc4MEg1MjBNMTYwMCA4NDBIMTQ1MFY3OTBIMTMyMFY4NTBIMTIwMFY4MDBIMTA4MCIvPgo8L2c+CjxnIGZpbGw9IiMwNjE0MjEiIHN0cm9rZT0iIzJjOGNkNSIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIuODUiPgogPHJlY3QgeD0iNzAiIHk9IjE1MCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxMDAiIHJ4PSI3Ii8+PHJlY3QgeD0iMTMyMCIgeT0iMTM1IiB3aWR0aD0iMTcwIiBoZWlnaHQ9IjEwNSIgcng9IjciLz4KIDxyZWN0IHg9IjExMCIgeT0iNTY1IiB3aWR0aD0iMTQ1IiBoZWlnaHQ9Ijk1IiByeD0iNyIvPjxyZWN0IHg9IjEzNTAiIHk9IjU4MCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSI3Ii8+CiA8cmVjdCB4PSI2MDAiIHk9IjkwIiB3aWR0aD0iMTE1IiBoZWlnaHQ9IjY1IiByeD0iNSIvPjxyZWN0IHg9IjkwMCIgeT0iMTIwIiB3aWR0aD0iMTA1IiBoZWlnaHQ9IjYyIiByeD0iNSIvPgo8L2c+CjxnIGZpbGw9IiM2N2JmZmYiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTciIG9wYWNpdHk9Ii44Ij48dGV4dCB4PSI5NSIgeT0iMjA1Ij5FQ1U8L3RleHQ+PHRleHQgeD0iMTM0NSIgeT0iMTgwIj5GVVNFIC8gUkVMQVk8L3RleHQ+PHRleHQgeD0iMTM1IiB5PSI2MjAiPkFCUzwvdGV4dD48dGV4dCB4PSIxMzc1IiB5PSI2MzUiPlNFTlNPUjwvdGV4dD48dGV4dCB4PSI2MjUiIHk9IjEzMCI+Q0FOLUg8L3RleHQ+PHRleHQgeD0iOTIyIiB5PSIxNTgiPklHTjwvdGV4dD48L2c+CjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzIxYTVmZiIgc3Ryb2tlLXdpZHRoPSIzIiBvcGFjaXR5PSIuOCI+CiA8cGF0aCBkPSJNMjMwIDE4NUgyODVWMjYwSDM4NVYzMTBINTEwVjM3MEg2MjAiLz48cGF0aCBkPSJNMTMyMCAxODBIMTI3MFYyNzBIMTE4NVYzMjBIMTEwMFYzODBIOTgwIi8+CiA8cGF0aCBkPSJNMjU1IDYxMEgzMzBWNTUwSDQyMFY0OTBINTIwVjQ1NUg2MDAiLz48cGF0aCBkPSJNMTM1MCA2MjVIMTI4MFY1NzBIMTE5MFY1MjBIMTEwMFY0NzVIMTAwMCIvPgogPHBhdGggZD0iTTcxNSAxMjJINzg1VjIwMEg4NTBWMjUwTTEwMDUgMTUwSDEwNjBWMjE1SDExMTAiLz4KPC9nPgo8ZyBmaWxsPSIjZmY4YzM4IiBzdHJva2U9IiNmZjhjMzgiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iLjc1Ij48Y2lyY2xlIGN4PSIyODUiIGN5PSIyNjAiIHI9IjUiLz48Y2lyY2xlIGN4PSI1MTAiIGN5PSIzNzAiIHI9IjUiLz48Y2lyY2xlIGN4PSIxMjcwIiBjeT0iMjcwIiByPSI1Ii8+PGNpcmNsZSBjeD0iMTEwMCIgY3k9IjM4MCIgcj0iNSIvPjxjaXJjbGUgY3g9IjQyMCIgY3k9IjQ5MCIgcj0iNSIvPjxjaXJjbGUgY3g9IjExOTAiIGN5PSI1MjAiIHI9IjUiLz48Y2lyY2xlIGN4PSI4NTAiIGN5PSIyNTAiIHI9IjUiLz48L2c+CjwhLS0gc3R5bGl6ZWQgd2lyZWZyYW1lIHZlaGljbGUgc2lsaG91ZXR0ZSAtLT4KPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2NhcikiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgb3BhY2l0eT0iLjgiPgogPHBhdGggZD0iTTMzMCA2MTBMMzc1IDU0NUw0ODAgNTAwTDU4MCA0MTBRNjI1IDM3NSA3MDAgMzcwTDkxNSAzNzVROTkwIDM4NSAxMDU1IDQ0NUwxMTcwIDUwMEwxMjQ1IDU0NUwxMjgwIDYwNUwxMjYwIDY2NUwxMTkwIDY4NUwxMTIwIDY4MFExMTAwIDYxMCAxMDMwIDYxMFE5NTUgNjEwIDkzNSA2ODBMNjAwIDY4MFE1ODAgNjEwIDUxMCA2MTBRNDQwIDYxMCA0MjAgNjgwTDM1NSA2NzBaIi8+CiA8cGF0aCBkPSJNNDgwIDUwMEw1NjAgNDQ1UTYxMCA0MTAgNjkwIDQwNUw3OTAgNDA1TDc5MCA1MDBaIi8+PHBhdGggZD0iTTgxMCA0MDVMOTEwIDQxMFE5NzAgNDIwIDEwMjAgNDc1TDEwNjAgNTAwTDgxMCA1MDBaIi8+CiA8cGF0aCBkPSJNNTgwIDQxMEw2MDAgNTAwTTc5MCA0MDVMNzkwIDUwME04MTAgNDA1TDgxMCA1MDBNMzc1IDU0NUw0ODAgNTQ1TDU2MCA1NDVMNzAwIDU0NUw4MTAgNTQ1TDk1MCA1NDVMMTA2MCA1NDVMMTE3MCA1NDUiLz4KIDxwYXRoIGQ9Ik00MjAgNjgwTDQ2MCA2MzBMNTEwIDYxMEw1NjAgNjMwTDYwMCA2ODBNOTM1IDY4MEw5ODAgNjMwTDEwMzAgNjEwTDEwODAgNjMwTDExMjAgNjgwIi8+CiA8Y2lyY2xlIGN4PSI1MTAiIGN5PSI2NTAiIHI9IjU1Ii8+PGNpcmNsZSBjeD0iNTEwIiBjeT0iNjUwIiByPSIzMSIvPjxjaXJjbGUgY3g9IjEwMzAiIGN5PSI2NTAiIHI9IjU1Ii8+PGNpcmNsZSBjeD0iMTAzMCIgY3k9IjY1MCIgcj0iMzEiLz4KIDxwYXRoIGQ9Ik01MTAgNTk1VjcwNU00NTUgNjUwSDU2NU0xMDMwIDU5NVY3MDVNOTc1IDY1MEgxMDg1TTMzMCA2MTBMNTAwIDU4NUw2OTAgNTcwTDkwMCA1NzBMMTEyMCA1OTBMMTI4MCA2MDUiLz4KPC9nPgo8ZyBmaWxsPSIjNDBiN2ZmIiBvcGFjaXR5PSIuNyI+PGNpcmNsZSBjeD0iMzMwIiBjeT0iNjEwIiByPSI0Ii8+PGNpcmNsZSBjeD0iNjAwIiBjeT0iNjgwIiByPSI0Ii8+PGNpcmNsZSBjeD0iOTM1IiBjeT0iNjgwIiByPSI0Ii8+PGNpcmNsZSBjeD0iMTI4MCIgY3k9IjYwNSIgcj0iNCIvPjxjaXJjbGUgY3g9IjcwMCIgY3k9IjM3MCIgcj0iNCIvPjxjaXJjbGUgY3g9IjkxNSIgY3k9IjM3NSIgcj0iNCIvPjwvZz4KPHJlY3Qgd2lkdGg9IjE2MDAiIGhlaWdodD0iMTAwMCIgZmlsbD0iIzAyMDgxNCIgb3BhY2l0eT0iLjMyIi8+CjxyYWRpYWxHcmFkaWVudCBpZD0idmlnbmV0dGUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA2MTExZSIgc3RvcC1vcGFjaXR5PSIuMDUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMjA3MTEiIHN0b3Atb3BhY2l0eT0iLjY1Ii8+PC9yYWRpYWxHcmFkaWVudD48cmVjdCB3aWR0aD0iMTYwMCIgaGVpZ2h0PSIxMDAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgo8L3N2Zz4K') center center/cover no-repeat}
+.public-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#030a13f2 0%,#06111ddf 35%,#06111d8c 70%,#06111dc9 100%),linear-gradient(0deg,#030a13 0%,transparent 32%,#030a1366 100%)}
+.public-hero-copy{width:min(760px,90%);margin:clamp(48px,9vh,110px) auto 45px;text-align:center;padding:0 10px}
+.public-hero-copy .eyebrow{color:#55baff}
+.public-hero-copy h1{font-size:clamp(55px,8vw,92px);line-height:1;margin:17px 0 20px;font-weight:900;letter-spacing:-4px}
+.public-hero-copy h1 span{color:#139eff}
+.public-hero-copy h2{font-size:clamp(22px,3vw,31px);margin:0 0 15px;color:#f3f8ff}
+.public-hero-copy p{max-width:620px;margin:0 auto;color:#b5c9df;font-size:clamp(15px,1.6vw,18px);line-height:1.65}
+.public-hero-actions{display:flex;justify-content:center;gap:13px;margin-top:30px;flex-wrap:wrap}
+.public-hero-actions .btn{min-width:220px;min-height:52px;font-size:15px;border-radius:12px}
+.public-hero-actions .public-primary{color:#fff;background:linear-gradient(130deg,#1ba9ff,#0875e4)}
+.public-hero-actions .public-secondary{background:#06111de8;color:#f2f8ff;border-color:#149cff}
+.public-note{margin-top:16px;color:#8daac5;font-size:12px}
+.public-features{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:25px clamp(18px,5vw,80px) 28px;background:#020812b8;border-top:1px solid #31506a70;backdrop-filter:blur(8px)}
+.public-features>div{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.public-features span{color:#36adff;font-size:27px;margin-bottom:3px}
+.public-features strong{font-size:12px;color:#f1f7ff}
+.public-features small{font-size:11px;color:#9db3ca}
+@media(max-width:700px){.public-header{padding:13px 14px;align-items:flex-start}.public-brand{font-size:22px;gap:7px}.public-brand-icon{width:34px;height:34px;font-size:20px}.public-brand small{display:none}.public-header-actions{gap:6px}.public-header-actions .btn{font-size:11px;padding:8px 10px}.public-hero{min-height:calc(100vh - 61px);background-position:center center}.public-hero-copy{margin:54px auto 35px;width:94%}.public-hero-copy h1{letter-spacing:-2px;margin:14px 0}.public-hero-copy p{font-size:14px}.public-hero-actions{flex-direction:column;align-items:stretch;margin-top:24px}.public-hero-actions .btn{width:100%;min-height:48px}.public-features{grid-template-columns:repeat(2,minmax(0,1fr));gap:19px 10px;padding:20px 12px calc(22px + env(safe-area-inset-bottom))}.public-features strong{font-size:11px}.public-features small{font-size:10px}.app.logged-out #view-account{padding:20px 12px 35px}.app.logged-out #view-account .page-heading{align-items:center}.app.logged-out #view-account .page-heading h1{font-size:22px}}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">⚙</div><div><div class="brand-name">AutoFix</div><div class="brand-sub">Diagnostic workspace</div></div></div>
+    <div class="nav-label">Рабочее пространство</div>
+    <nav class="nav mobile-nav" aria-label="Главная навигация">
+      <button class="active" data-view="landing"><span class="ico">⌂</span><span>Главная</span></button>
+      <button data-view="dashboard"><span class="ico">▦</span><span>Обзор</span></button>
+      <button data-view="database"><span class="ico">⌕</span><span>База</span></button>
+      <button data-view="cars"><span class="ico">🚘</span><span>Автомобили</span></button>
+      <button data-view="add"><span class="ico">＋</span><span>Добавить</span></button>
+      <button data-view="account"><span class="ico">♙</span><span>Аккаунт</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="account-chip"><span class="status-dot"></span><span id="sidebarStatus">Не авторизован</span><small id="sidebarEmail">Войдите для добавления случаев</small></div>
+      <div class="footer-note">AutoFix · база опыта автомехаников</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="top-title" id="topTitle">Главная</div><div class="top-sub">Диагностика • Опыт • Решения</div></div>
+      <div class="top-actions"><span class="top-user" id="topUser"></span><button class="btn secondary" id="topHomeBtn" type="button">⌂ Главная</button><button class="btn" id="topAddBtn" type="button">＋ Добавить ремонт</button></div>
+    </header>
+
+    <main class="content">
+      <section class="view active" id="view-landing">
+        <div class="public-header">
+          <div class="public-brand"><span class="public-brand-icon">⚙</span><span>Auto<span>Fix</span></span><small>База знаний для автоэлектриков и диагностов</small></div>
+          
+        </div>
+        <div class="public-hero">
+          <div class="public-hero-copy">
+            <div class="eyebrow">ОБЩАЯ БАЗА ОПЫТА АВТОДИАГНОСТОВ</div>
+            <h1>Auto<span>Fix</span></h1>
+            <h2>Решения для сложных задач</h2>
+            <p>База реальных случаев ремонта, диагностики и подтверждённых решений для современных автомобилей. Находите причину неисправности быстрее и делитесь опытом с коллегами.</p>
+            <div class="public-hero-actions"><button class="btn public-primary" data-go="account" data-auth-mode="login" type="button">♙ Войти</button><button class="btn secondary public-secondary" data-go="account" data-auth-mode="signup" type="button">♙ Зарегистрироваться</button></div>
+            <div class="public-note">Доступ к базе и добавлению случаев — только после регистрации или входа.</div>
+          </div>
+          <div class="public-features"><div><span>◷</span><strong>Экономия времени</strong><small>Быстрый поиск решений</small></div><div><span>◇</span><strong>Реальные случаи</strong><small>Ремонты, проверки и фото</small></div><div><span>♧</span><strong>Опыт сообщества</strong><small>Знания коллег и экспертов</small></div><div><span>⌘</span><strong>Доступ с любого устройства</strong><small>Компьютер и телефон</small></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-dashboard">
+        <div class="page-heading"><div><div class="eyebrow">AUTOFIX / WORKSPACE</div><h1>Рабочий стол</h1><p>Быстрый доступ к базе реальных неисправностей и решениям других автомехаников.</p></div></div>
+        <div class="hero-search">
+          <h2>Что случилось с автомобилем?</h2>
+          <p>Ищите по коду ошибки, модели или описанию симптома.</p>
+          <div class="searchbar"><input class="control" id="homeSearch" placeholder="Например: Toyota Prius P0401, пропуски зажигания…" aria-label="Поиск неисправностей"><button class="btn" id="homeSearchBtn" type="button">⌕ Найти решение</button></div>
+          <div class="search-hint">Совет: можно искать по коду DTC, симптомам, причине или выполненным проверкам.</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-top"><span>Случаи в базе</span><span class="stat-icon">▤</span></div><div class="stat-number" id="statTotal">—</div><div class="stat-caption">Доступные вам записи</div></div>
+          <div class="stat"><div class="stat-top"><span>Марки автомобилей</span><span class="stat-icon">🚘</span></div><div class="stat-number" id="statBrands">—</div><div class="stat-caption">В базе знаний</div></div>
+          <div class="stat"><div class="stat-top"><span>С фото</span><span class="stat-icon">▧</span></div><div class="stat-number" id="statPhotos">—</div><div class="stat-caption">Случаи с изображениями</div></div>
+        </div>
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title"><div><h2>Недавно добавленные</h2><p>Последние случаи из базы</p></div><button class="btn ghost small" id="viewAllBtn" type="button">Вся база →</button></div>
+            <div class="case-list" id="recentCases"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title"><div><h2>Быстрые действия</h2><p>Основные инструменты AutoFix</p></div></div>
+            <div class="quick-actions">
+              <button class="quick-action" data-go="database" type="button"><span class="quick-icon">⌕</span><span><strong>Найти неисправность</strong><small>Поиск по симптомам и DTC</small></span></button>
+              <button class="quick-action" data-go="add" type="button"><span class="quick-icon">＋</span><span><strong>Добавить ремонт</strong><small>Записать диагностику и решение</small></span></button>
+              <button class="quick-action" data-go="account" type="button"><span class="quick-icon">♙</span><span><strong>Мой аккаунт</strong><small>Вход и управление сессией</small></span></button>
+              <button class="quick-action" id="dashboardReload" type="button"><span class="quick-icon">⟳</span><span><strong>Обновить базу</strong><small>Загрузить актуальные записи</small></span></button>
+            </div>
+            <div class="notice hidden" id="dashboardMessage" role="status"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-database">
+        <div class="page-heading"><div><div class="eyebrow">KNOWLEDGE BASE</div><h1>База ремонтов</h1><p>Поиск по марке, модели, двигателю, коду ошибки, симптомам, проверкам, причине и решению.</p></div><button class="btn" data-go="add" type="button">＋ Новый случай</button></div>
+        <section class="panel">
+          <div class="case-toolbar">
+            <div class="field"><label for="searchInput">Поиск по базе</label><input class="control" id="searchInput" placeholder="Код ошибки, симптом, модель…"></div>
+            <div class="field"><label for="brandFilter">Марка автомобиля</label><select class="control" id="brandFilter"><option value="">Все марки</option></select></div>
+            <div class="field"><label for="modelFilter">Модель автомобиля</label><select class="control" id="modelFilter"><option value="">Все модели</option></select></div>
+            <div class="field"><label for="generationFilter">Поколение</label><select class="control" id="generationFilter"><option value="">Все поколения</option></select></div>
+            <div class="field"><label for="engineFilter">Двигатель</label><select class="control" id="engineFilter"><option value="">Все двигатели</option></select></div>
+            <div class="field"><label for="sortSelect">Сортировка</label><select class="control" id="sortSelect"><option value="newest">Сначала новые</option><option value="oldest">Сначала старые</option><option value="brand">По марке</option></select></div>
+          </div>
+          <div class="form-actions" style="margin-top:0"><button class="btn" id="searchBtn" type="button">⌕ Найти</button><button class="btn secondary" id="clearFiltersBtn" type="button">↺ Сбросить фильтры</button><button class="btn ghost" id="reloadBtn" type="button">⟳ Обновить</button></div>
+          <div id="listMessage" class="notice hidden" role="status"></div>
+          <div class="count-label" id="caseCount"></div>
+          <div class="case-list" id="casesList"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-add">
+        <div class="page-heading"><div><div class="eyebrow">REPAIR REPORT</div><h1>Добавить случай ремонта</h1><p>Сохраните свой опыт, чтобы другие специалисты могли быстрее находить решение похожих неисправностей.</p></div><button class="btn secondary" id="backToDatabaseBtn" type="button">☷ Перейти в базу ремонтов</button></div>
+        <div id="addAuthNotice" class="notice hidden">Для добавления случая войдите в аккаунт. <button class="btn small" data-go="account" type="button">Перейти ко входу</button></div>
+        <section class="panel" id="addPanel">
+          <div class="panel-title"><div><h2>🚘 Автомобиль и диагностика</h2><p>Поля со звёздочкой обязательны</p></div><span class="badge">Черновик до публикации</span></div>
+          <form id="caseForm">
+            <div class="form-grid">
+              <div class="field"><label for="brand">Марка автомобиля *</label><select class="control" id="brand" required><option value="">Загрузка марок…</option></select></div>
+              <div class="field"><label for="model">Модель *</label><select class="control" id="model" required disabled><option value="">Сначала выберите марку</option></select></div>
+              <div class="field"><label for="generation">Поколение</label><select class="control" id="generation" disabled><option value="">Сначала выберите модель</option></select></div>
+              <div class="field"><label for="catalogEngine">Двигатель из каталога</label><select class="control" id="catalogEngine" disabled><option value="">Сначала выберите поколение</option></select></div>
+              <div class="field"><label for="year">Год выпуска</label><input class="control" id="year" type="number" min="1950" max="2100" placeholder="2018"></div>
+              <div class="field"><label for="engine">Двигатель (если нет в каталоге)</label><input class="control" id="engine" maxlength="100" placeholder="Например, 1.8 Hybrid / 2ZR-FXE"></div>
+              <div class="field full"><label for="errorCode">Код ошибки DTC</label><input class="control" id="errorCode" maxlength="100" placeholder="Например, P0401"></div>
+              <div class="field full"><label for="symptom">Симптомы неисправности *</label><textarea class="control" id="symptom" required maxlength="5000" placeholder="Жалоба клиента, когда возникает неисправность, условия проявления…"></textarea></div>
+              <div class="field full"><label for="checks">Проведённые проверки *</label><textarea class="control" id="checks" required maxlength="8000" placeholder="Измерения, параметры сканера, проводка, компоненты, что удалось исключить…"></textarea></div>
+              <div class="field full"><label for="cause">Подтверждённая причина *</label><textarea class="control" id="cause" required maxlength="5000" placeholder="Какая неисправность действительно вызвала проблему?"></textarea></div>
+              <div class="field full"><label for="solution">Решение проблемы *</label><textarea class="control" id="solution" required maxlength="8000" placeholder="Что отремонтировали или заменили? Как подтвердили результат?"></textarea></div>
+              <div class="field full"><label for="photos">📷 Фотографии ремонта (до 5)</label><input class="control" id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple><div class="small muted" style="margin-top:7px">JPG, PNG или WebP. Максимум 5 МБ на фото. Не загружайте VIN, номера и личные данные клиентов.</div><div id="photoMessage" class="notice hidden" role="status"></div><div id="photoPreview" class="photo-preview"></div></div>
+            </div>
+            <div class="form-actions"><button class="btn" id="saveCaseBtn" type="submit">✓ Сохранить случай</button><button class="btn secondary" id="resetFormBtn" type="button">Очистить форму</button><span class="small muted">Случай будет сохранён как черновик.</span></div>
+            <div id="formMessage" class="notice hidden" role="status"></div>
+          </form>
+        </section>
+      </section>
+
+      <section class="view" id="view-cars">
+        <div class="page-heading"><div><div class="eyebrow">VEHICLE CATALOG</div><h1>Автомобили</h1><p>Выберите марку и модель, чтобы посмотреть связанные случаи ремонта. Каталог доступен после входа в аккаунт.</p></div></div>
+        <section class="panel">
+          <div class="form-grid">
+            <div class="field"><label for="carsBrand">Марка</label><select class="control" id="carsBrand"><option value="">Выберите марку</option></select></div>
+            <div class="field"><label for="carsModel">Модель</label><select class="control" id="carsModel" disabled><option value="">Сначала выберите марку</option></select></div>
+            <div class="field"><label for="carsGeneration">Поколение</label><select class="control" id="carsGeneration" disabled><option value="">Сначала выберите модель</option></select></div>
+            <div class="field"><label for="carsEngine">Двигатель</label><select class="control" id="carsEngine" disabled><option value="">Сначала выберите поколение</option></select></div>
+          </div>
+          <div id="carsMessage" class="notice hidden" role="status"></div>
+          <div class="count-label" id="carsCount"></div>
+          <div class="case-list" id="carsCases"><div class="empty">Выберите марку и модель автомобиля.</div></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-account">
+        <div class="page-heading"><div><div class="eyebrow">ACCOUNT & ACCESS</div><h1>Вход или регистрация</h1><p>Войдите или создайте аккаунт, чтобы открыть общую базу AutoFix.</p></div><button class="btn ghost" data-go="landing" type="button">← Главная</button></div>
+        <div class="auth-layout">
+          <section class="panel">
+            <div class="auth-intro"><div class="auth-logo">⚙</div><h1>AutoFix</h1><p class="muted">Ваш рабочий инструмент для диагностики</p></div>
+            <div id="signedInBox" class="notice hidden"></div>
+            <form id="authForm" autocomplete="on">
+              <div class="form-grid">
+                <div class="field full"><label for="authEmail">Электронная почта</label><input class="control" id="authEmail" name="username" type="email" autocomplete="username" placeholder="name@example.com"></div>
+                <div class="field full"><label for="authPassword">Пароль</label><input class="control" id="authPassword" name="password" type="password" autocomplete="current-password" placeholder="Ваш пароль"></div>
+              </div>
+              <div class="form-actions">
+                <button class="btn" id="loginBtn" type="submit">↪ Войти</button>
+                <button class="btn secondary" id="signupBtn" type="button">♙ Регистрация</button>
+              </div>
+            </form>
+            <div class="form-actions" style="margin-top:9px"><button class="btn ghost small" id="resetPasswordBtn" type="button">Забыли пароль?</button><button class="btn danger small hidden" id="logoutBtn" type="button">Выйти из аккаунта</button></div>
+            <div id="authMessage" class="notice hidden" role="status"></div>
+            <div id="resetPanel" class="section-spacer hidden">
+              <div class="field"><label for="newPassword">Новый пароль</label><input class="control" id="newPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Минимум 6 символов"></div>
+              <div class="form-actions"><button class="btn" id="saveNewPasswordBtn" type="button">Сохранить пароль</button></div>
+              <div id="resetMessage" class="notice hidden" role="status"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+      <div class="footer-note">AutoFix · Общая база диагностических решений · Проверяйте каждое решение на конкретном автомобиле</div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const SUPABASE_URL = "https://atzzlpefrqvpuwrcltkf.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_F3kPqV2tH3vp5GI8pisZcw_-MYIn0AD";
+  const ADMIN_EMAIL = "alex16071991@gmail.com";
+  const PHOTO_BUCKET = "repair-photos";
+  const MAX_PHOTOS = 5;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let currentUser = null, cases = [], appliedSearch = "", selectedPhotos = [], isSaving = false, loadSequence = 0, preferredAuthMode = "login", carBrands = [], carModels = [], carGenerations = [], carEngines = [];
+  const $ = id => document.getElementById(id);
+
+  function message(id, text, type = "") {
+    const el = $(id); el.textContent = text; el.className = "notice" + (type ? " " + type : ""); el.classList.remove("hidden");
+  }
+  function hide(id) { $(id).classList.add("hidden"); }
+  function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function safePhotoUrl(v) {
+    try { const u = new URL(v); if (u.protocol === "https:" && u.hostname === "atzzlpefrqvpuwrcltkf.supabase.co") return u.href; } catch (_) {}
+    return "";
+  }
+  function dateText(v) { if (!v) return ""; const d = new Date(v); return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("ru-RU"); }
+  function isAdmin() { return Boolean(currentUser?.email) && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase(); }
+
+  const viewTitles = {landing:"Главная",dashboard:"Обзор",database:"База ремонтов",cars:"Автомобили",add:"Добавить случай",account:"Аккаунт"};
+  function goView(name) {
+    if (!viewTitles[name]) name = "landing";
+    // База, рабочий стол и добавление доступны только авторизованным пользователям.
+    if (["database", "dashboard", "cars", "add"].includes(name) && !currentUser) {
+      name = "account";
+      window.setTimeout(() => message("authMessage", "Для доступа к базе AutoFix необходимо зарегистрироваться или войти в аккаунт.", "error"), 0);
+    }
+    document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+    document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+    $("topTitle").textContent = viewTitles[name];
+    if (name === "add" && !currentUser) {
+      $("addAuthNotice").classList.remove("hidden");
+      $("addPanel").classList.add("hidden");
+    } else if (name === "add") {
+      $("addAuthNotice").classList.add("hidden");
+      $("addPanel").classList.remove("hidden");
+    }
+    if (name === "account") updateAuthUI();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => goView(b.dataset.view)));
+  document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.authMode) {
+      const signupMode = b.dataset.authMode === "signup";
+      preferredAuthMode = signupMode ? "signup" : "login";
+      $("authMessage").classList.add("hidden");
+      $("authPassword").autocomplete = signupMode ? "new-password" : "current-password";
+      $("authPassword").placeholder = signupMode ? "Придумайте пароль (минимум 6 символов)" : "Ваш пароль";
+      $("loginBtn").classList.toggle("hidden", signupMode || Boolean(currentUser));
+      $("signupBtn").classList.toggle("hidden", !signupMode || Boolean(currentUser));
+      $("resetPasswordBtn").classList.toggle("hidden", signupMode || Boolean(currentUser));
+    }
+    goView(b.dataset.go);
+  }));
+
+  function updateAuthUI() {
+    const logged = Boolean(currentUser);
+    document.querySelector(".app").classList.toggle("logged-out", !logged);
+    $("topUser").textContent = logged ? "👤 " + currentUser.email : "";
+    $("topHomeBtn").textContent = logged ? "↪ Выход" : "⌂ Главная";
+    $("sidebarStatus").textContent = logged ? (isAdmin() ? "Администратор" : "Вход выполнен") : "Не авторизован";
+    $("sidebarEmail").textContent = logged ? currentUser.email : "Войдите для добавления случаев";
+    $("loginBtn").classList.toggle("hidden", logged || preferredAuthMode === "signup");
+    $("signupBtn").classList.toggle("hidden", logged || preferredAuthMode !== "signup");
+    $("resetPasswordBtn").classList.toggle("hidden", logged || preferredAuthMode === "signup");
+    $("logoutBtn").classList.toggle("hidden", !logged);
+    $("signedInBox").classList.toggle("hidden", !logged);
+    if (logged) $("signedInBox").textContent = "✓ Вы вошли как " + currentUser.email + (isAdmin() ? " — права администратора" : "");
+    $("addAuthNotice").classList.toggle("hidden", logged || !$("view-add").classList.contains("active"));
+    $("addPanel").classList.toggle("hidden", !logged);
+  }
+  async function refreshUser() {
+    const {data,error} = await client.auth.getUser();
+    currentUser = error ? null : data.user; updateAuthUI();
+  }
+  async function login() {
+    hide("authMessage"); const email=$("authEmail").value.trim(), password=$("authPassword").value;
+    if (!email || !password) return message("authMessage","Введите электронную почту и пароль.","error");
+    $("loginBtn").disabled=true;
+    try { const {error}=await client.auth.signInWithPassword({email,password}); if(error) throw error; await refreshUser(); await loadCases(); goView("database"); }
+    catch(e){message("authMessage",e.message||"Не удалось войти.","error");}
+    finally{$("loginBtn").disabled=false;}
+  }
+  async function signup() {
+    hide("authMessage"); const email=$("authEmail").value.trim(), password=$("authPassword").value;
+    if(!email||!password) return message("authMessage","Введите электронную почту и пароль.","error");
+    if(password.length<6) return message("authMessage","Пароль должен содержать не менее 6 символов.","error");
+    $("signupBtn").disabled=true;
+    try {
+      const {data,error}=await client.auth.signUp({email,password}); if(error) throw error;
+      if(data.session){currentUser=data.user;updateAuthUI();await loadCases();goView("database");message("authMessage","Регистрация успешна. Добро пожаловать в AutoFix!","success");}
+      else { goView("account"); message("authMessage","Регистрация создана. Подтвердите адрес по ссылке в письме. После подтверждения вы попадёте в базу ремонтов; если вход не выполнится автоматически, войдите здесь.","success"); }
+    } catch(e){message("authMessage",e.message||"Не удалось зарегистрироваться.","error");}
+    finally{$("signupBtn").disabled=false;}
+  }
+  async function logout() {
+    const {error}=await client.auth.signOut(); if(error) return message("authMessage",error.message,"error");
+    currentUser=null;updateAuthUI();message("authMessage","Вы вышли из аккаунта.","success");await loadCases();goView("landing");
+  }
+  async function requestPasswordReset() {
+    hide("authMessage");const email=$("authEmail").value.trim();
+    if(!email) return message("authMessage","Сначала введите электронную почту.","error");
+    try {
+      const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+      if(error) throw error;
+      message("authMessage","Если для этого адреса существует аккаунт, письмо для восстановления будет отправлено. Проверьте почту и папку «Спам».","success");
+    } catch(e){message("authMessage",e.message||"Не удалось отправить письмо.","error");}
+  }
+  async function saveNewPassword() {
+    const password=$("newPassword").value;
+    if(password.length<6) return message("resetMessage","Введите пароль длиной не менее 6 символов.","error");
+    $("saveNewPasswordBtn").disabled=true;
+    try{const {error}=await client.auth.updateUser({password});if(error)throw error;$("newPassword").value="";message("resetMessage","Пароль изменён.","success");}
+    catch(e){message("resetMessage",e.message||"Не удалось изменить пароль.","error");}
+    finally{$("saveNewPasswordBtn").disabled=false;}
+  }
+
+  function validateFiles(files) {
+    if(files.length>MAX_PHOTOS)return "Можно выбрать не более 5 фотографий.";
+    for(const f of files){if(!ALLOWED_TYPES.includes(f.type))return "Файл «"+f.name+"» имеет неподдерживаемый формат. Используйте JPG, PNG или WebP.";if(f.size>MAX_FILE_SIZE)return "Файл «"+f.name+"» превышает 5 МБ.";}
+    return "";
+  }
+  function cleanupPreviews(){selectedPhotos.forEach(p=>URL.revokeObjectURL(p.previewUrl));}
+  function renderPreview() {
+    const box=$("photoPreview");box.innerHTML="";
+    selectedPhotos.forEach((item,i)=>{
+      const wrap=document.createElement("div");wrap.className="photo-preview-item";
+      const img=document.createElement("img");img.src=item.previewUrl;img.alt="Предпросмотр фотографии "+(i+1);
+      const name=document.createElement("div");name.className="small muted";name.textContent=item.file.name;
+      const btn=document.createElement("button");btn.type="button";btn.className="btn secondary small";btn.textContent="Убрать";
+      btn.addEventListener("click",()=>{URL.revokeObjectURL(item.previewUrl);selectedPhotos.splice(i,1);$("photos").value="";renderPreview();hide("photoMessage");});
+      wrap.append(img,name,btn);box.appendChild(wrap);
+    });
+  }
+  $("photos").addEventListener("change",()=>{
+    hide("photoMessage");const files=Array.from($("photos").files||[]),err=validateFiles(files);
+    if(err){cleanupPreviews();selectedPhotos=[];$("photos").value="";renderPreview();return message("photoMessage",err,"error");}
+    cleanupPreviews();selectedPhotos=files.map(file=>({file,previewUrl:URL.createObjectURL(file)}));renderPreview();
+    if(files.length)message("photoMessage","Выбрано фотографий: "+files.length,"success");
+  });
+  async function uploadPhotos() {
+    const urls=[];
+    for(const item of selectedPhotos){
+      const f=item.file,safeName=f.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100)||"photo";
+      const random=window.crypto?.randomUUID?window.crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2);
+      const path=currentUser.id+"/"+random+"-"+safeName;
+      const {error}=await client.storage.from(PHOTO_BUCKET).upload(path,f,{cacheControl:"3600",upsert:false,contentType:f.type});
+      if(error)throw new Error("Не удалось загрузить фотографию «"+f.name+"»: "+error.message);
+      const {data}=client.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+      if(!data?.publicUrl)throw new Error("Не удалось получить ссылку на загруженную фотографию.");
+      urls.push(data.publicUrl);
+    }
+    return urls;
+  }
+  async function saveCase(event) {
+    event.preventDefault();hide("formMessage");
+    if(!currentUser)return message("formMessage","Чтобы добавить случай ремонта, сначала войдите в аккаунт.","error");
+    if(isSaving)return;
+    const files=selectedPhotos.map(p=>p.file),fileErr=validateFiles(files);if(fileErr)return message("formMessage",fileErr,"error");
+    const yearText=$("year").value.trim(),year=yearText?Number(yearText):null;
+    if(year!==null&&(!Number.isInteger(year)||year<1950||year>2100))return message("formMessage","Проверьте год выпуска автомобиля.","error");
+    const record={
+      brand:(carBrands.find(x=>String(x.id)===$("brand").value)?.name||"").trim(),model:(carModels.find(x=>String(x.id)===$("model").value)?.name||"").trim(),year,
+      car_model_id:$("model").value ? Number($("model").value) : null, car_generation_id:$("generation").value ? Number($("generation").value) : null, car_engine_id:$("engine").value.trim() ? null : ($("catalogEngine").value ? Number($("catalogEngine").value) : null),
+      engine:($("engine").value.trim() || carEngines.find(x=>String(x.id)===$("catalogEngine").value)?.name || null),error_code:$("errorCode").value.trim()||null,
+      symptom:$("symptom").value.trim(),checks_performed:$("checks").value.trim(),
+      confirmed_cause:$("cause").value.trim(),solution:$("solution").value.trim(),
+      photos:[],created_by:currentUser.id,is_published:false
+    };
+    if(!record.brand||!record.model||!record.symptom||!record.checks_performed||!record.confirmed_cause||!record.solution)return message("formMessage","Заполните все обязательные поля.","error");
+    isSaving=true;$("saveCaseBtn").disabled=true;$("saveCaseBtn").textContent="Сохранение…";
+    try{
+      if(selectedPhotos.length){message("formMessage","Загружаем фотографии. Не закрывайте страницу.");record.photos=await uploadPhotos();}
+      const {error}=await client.from("repair_cases").insert(record);if(error)throw error;
+      $("caseForm").reset();cleanupPreviews();selectedPhotos=[];renderPreview();hide("photoMessage");
+      message("formMessage","Случай сохранён как черновик. После проверки администратор сможет опубликовать его.","success");
+      await loadCases();goView("database");
+    }catch(e){message("formMessage",e.message||"Не удалось сохранить случай.","error");}
+    finally{isSaving=false;$("saveCaseBtn").disabled=false;$("saveCaseBtn").textContent="✓ Сохранить случай";}
+  }
+
+  function searchText(item){const g=carGenerations.find(x=>String(x.id)===String(item.car_generation_id));const e=carEngines.find(x=>String(x.id)===String(item.car_engine_id));return [item.brand,item.model,item.year,item.engine,g?.name,e?.name,e?.engine_code,e?.fuel_type,item.error_code,item.symptom,item.checks_performed,item.confirmed_cause,item.solution].filter(Boolean).join(" ").toLocaleLowerCase("ru");}
+  async function loadVehicleCatalog(){
+    if(!currentUser)return;
+    const brandSelect=$("brand"),carsBrandSelect=$("carsBrand");
+    brandSelect.innerHTML='<option value="">Загружаем марки…</option>';
+    carsBrandSelect.innerHTML='<option value="">Загружаем марки…</option>';
+    try{
+      // Загружаем марки отдельно: ошибка таблицы моделей не должна скрывать марки.
+      const brandsRes=await client.from("car_brands").select("id,name").order("name");
+      if(brandsRes.error)throw new Error("car_brands: "+brandsRes.error.message);
+      carBrands=brandsRes.data||[];
+      fillSelect(brandSelect,carBrands,"Выберите марку");
+      fillSelect(carsBrandSelect,carBrands,"Выберите марку");
+      if(!carBrands.length){
+        message("carsMessage","Таблица car_brands доступна, но запрос не вернул марок. Проверьте RLS/права SELECT для authenticated.","error");
+      }else{hide("carsMessage");}
+    }catch(e){
+      carBrands=[];
+      brandSelect.innerHTML='<option value="">Ошибка загрузки марок</option>';
+      carsBrandSelect.innerHTML='<option value="">Ошибка загрузки марок</option>';
+      message("carsMessage","Не удалось загрузить марки из car_brands: "+e.message,"error");
+      return;
+    }
+    try{
+      const modelsRes=await client.from("car_models").select("id,brand_id,name").order("name");
+      if(modelsRes.error)throw new Error("car_models: "+modelsRes.error.message);
+      carModels=modelsRes.data||[];
+      updateModelOptions(brandSelect,$("model"));
+      updateModelOptions(carsBrandSelect,$("carsModel"));
+      const [gensRes,enginesRes]=await Promise.all([
+        client.from("car_generations").select("id,model_id,name,year_from,year_to").order("year_from"),
+        client.from("car_engines").select("id,generation_id,name,engine_code,fuel_type").order("name")
+      ]);
+      if(gensRes.error)throw new Error("car_generations: "+gensRes.error.message);
+      if(enginesRes.error)throw new Error("car_engines: "+enginesRes.error.message);
+      carGenerations=gensRes.data||[]; carEngines=enginesRes.data||[];
+      updateGenerationOptions($("model"),$("generation"));
+      updateGenerationOptions($("carsModel"),$("carsGeneration"));
+      updateBrandFilter();
+    }catch(e){
+      carModels=[];
+      $("model").innerHTML='<option value="">Не удалось загрузить модели</option>';
+      $("model").disabled=true;
+      $("carsModel").innerHTML='<option value="">Не удалось загрузить модели</option>';
+      $("carsModel").disabled=true;
+      message("carsMessage","Марки загружены, но модели не загрузились: "+e.message+". Проверьте SELECT-права и RLS таблицы car_models.","error");
+    }
+  }
+  function fillSelect(select,items,placeholder){
+    const prev=select.value;select.innerHTML='<option value="">'+esc(placeholder)+'</option>';
+    items.forEach(item=>{const o=document.createElement("option");o.value=String(item.id);o.textContent=item.name;select.appendChild(o);});
+    if(items.some(x=>String(x.id)===prev))select.value=prev;
+  }
+  function updateModelOptions(brandSelect,modelSelect){
+    const brandId=brandSelect.value;const prev=modelSelect.value;
+    const models=carModels.filter(x=>String(x.brand_id)===String(brandId));
+    modelSelect.innerHTML='<option value="">'+(brandId?'Выберите модель':'Сначала выберите марку')+'</option>';
+    models.forEach(item=>{const o=document.createElement("option");o.value=String(item.id);o.textContent=item.name;modelSelect.appendChild(o);});
+    modelSelect.disabled=!brandId;
+    if(models.some(x=>String(x.id)===prev))modelSelect.value=prev;
+  }
+  function updateGenerationOptions(modelSelect,generationSelect){
+    const modelId=modelSelect.value,prev=generationSelect.value;
+    const items=carGenerations.filter(x=>String(x.model_id)===String(modelId));
+    generationSelect.innerHTML='<option value="">'+(modelId?(items.length?'Выберите поколение':'Для модели поколения ещё не добавлены'):'Сначала выберите модель')+'</option>';
+    items.forEach(item=>{const o=document.createElement("option");o.value=String(item.id);o.textContent=item.name+(item.year_from?' · '+item.year_from+(item.year_to?'–'+item.year_to:'–'):'');generationSelect.appendChild(o);});
+    generationSelect.disabled=!modelId||!items.length;if(items.some(x=>String(x.id)===prev))generationSelect.value=prev;
+  }
+  function updateEngineOptions(generationSelect,engineSelect){
+    const generationId=generationSelect.value,prev=engineSelect.value;
+    const items=carEngines.filter(x=>String(x.generation_id)===String(generationId));
+    engineSelect.innerHTML='<option value="">'+(generationId?(items.length?'Выберите двигатель':'Для поколения двигатели ещё не добавлены'):'Сначала выберите поколение')+'</option>';
+    items.forEach(item=>{const o=document.createElement("option");o.value=String(item.id);o.textContent=item.name+(item.engine_code?' · '+item.engine_code:'')+(item.fuel_type?' · '+item.fuel_type:'');engineSelect.appendChild(o);});
+    engineSelect.disabled=!generationId||!items.length;if(items.some(x=>String(x.id)===prev))engineSelect.value=prev;
+  }
+  function updateBrandFilter(){
+    const select=$("brandFilter"),prev=select.value;
+    // В поиске показываем весь справочник марок, а не только марки из уже записанных ремонтов.
+    const catalogNames=carBrands.map(x=>x.name).filter(Boolean);
+    const usedNames=cases.map(x=>x.brand).filter(Boolean);
+    const brands=[...new Set([...catalogNames,...usedNames])].sort((a,b)=>a.localeCompare(b,"ru"));
+    select.innerHTML='<option value="">Все марки</option>';
+    brands.forEach(brand=>{const o=document.createElement("option");o.value=brand;o.textContent=brand;select.appendChild(o);});
+    if(brands.includes(prev))select.value=prev;
+    updateModelFilter();
+  }
+  function updateModelFilter(){
+    const select=$("modelFilter"),prev=select.value,brand=$("brandFilter").value;
+    let catalogModels=[];
+    if(brand){const brandRow=carBrands.find(x=>x.name===brand);if(brandRow)catalogModels=carModels.filter(x=>String(x.brand_id)===String(brandRow.id)).map(x=>x.name);}
+    const usedModels=cases.filter(x=>(!brand||x.brand===brand)&&x.model).map(x=>x.model);
+    const models=[...new Set([...catalogModels,...usedModels])].sort((a,b)=>a.localeCompare(b,"ru"));
+    select.innerHTML='<option value="">Все модели</option>';
+    models.forEach(model=>{const o=document.createElement("option");o.value=model;o.textContent=model;select.appendChild(o);});
+    select.disabled=Boolean(brand)&&models.length===0;
+    if(models.includes(prev))select.value=prev;
+    updateGenerationFilter();
+  }
+  function updateGenerationFilter(){
+    const select=$("generationFilter"),prev=select.value,modelName=$("modelFilter").value,brandName=$("brandFilter").value;
+    const modelRow=carModels.find(x=>x.name===modelName&&(!brandName||carBrands.find(b=>String(b.id)===String(x.brand_id))?.name===brandName));
+    const items=carGenerations.filter(g=>!modelName||String(g.model_id)===String(modelRow?.id));
+    select.innerHTML='<option value="">Все поколения</option>';
+    items.forEach(g=>{const m=carModels.find(x=>String(x.id)===String(g.model_id));const o=document.createElement("option");o.value=String(g.id);o.textContent=(m?m.name+" · ":"")+g.name;select.appendChild(o);});
+    if(items.some(x=>String(x.id)===prev))select.value=prev;
+    updateEngineFilter();
+  }
+  function updateEngineFilter(){
+    const select=$("engineFilter"),prev=select.value,generationId=$("generationFilter").value;
+    const items=carEngines.filter(e=>!generationId||String(e.generation_id)===generationId);
+    select.innerHTML='<option value="">Все двигатели</option>';
+    items.forEach(e=>{const g=carGenerations.find(x=>String(x.id)===String(e.generation_id));const m=g&&carModels.find(x=>String(x.id)===String(g.model_id));const o=document.createElement("option");o.value=String(e.id);o.textContent=[m?.name,g?.name,e.name,e.engine_code].filter(Boolean).join(" · ");select.appendChild(o);});
+    if(items.some(x=>String(x.id)===prev))select.value=prev;
+  }
+  function renderCarsCases(){
+    const brandId=$("carsBrand").value,modelId=$("carsModel").value;
+    const brand=carBrands.find(x=>String(x.id)===brandId),model=carModels.find(x=>String(x.id)===modelId);
+    if(!brand||!model){$("carsCount").textContent="";$("carsCases").innerHTML='<div class="empty">Выберите марку и модель автомобиля.</div>';return;}
+    const generationId=$("carsGeneration").value,engineId=$("carsEngine").value;
+    const selectedEngine=carEngines.find(x=>String(x.id)===engineId);
+    const matched=cases.filter(x=>(x.brand||"").toLocaleLowerCase("ru")===brand.name.toLocaleLowerCase("ru")&&(x.model||"").toLocaleLowerCase("ru")===model.name.toLocaleLowerCase("ru")&&(!selectedEngine||(x.engine||"").toLocaleLowerCase("ru").includes(selectedEngine.name.toLocaleLowerCase("ru"))||(selectedEngine.engine_code&&(x.engine||"").toLocaleLowerCase("ru").includes(selectedEngine.engine_code.toLocaleLowerCase("ru")))));
+    const generation=carGenerations.find(x=>String(x.id)===generationId);
+    $("carsCount").textContent="Случаев ремонта для "+brand.name+" "+model.name+(generation?' · '+generation.name:'')+(selectedEngine?' · '+selectedEngine.name:'')+": "+matched.length;
+    $("carsCases").innerHTML=matched.length?matched.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).map(x=>caseHtml(x)).join(""):'<div class="empty">Для этой модели пока нет случаев ремонта. Вы можете добавить первый случай.</div>';
+  }
+  function photosHtml(item){
+    if(!Array.isArray(item.photos)||!item.photos.length)return "";
+    const urls=item.photos.map(safePhotoUrl).filter(Boolean);if(!urls.length)return "";
+    return '<div class="case-photos">'+urls.map((u,i)=>'<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer" aria-label="Открыть фотографию '+(i+1)+'"><img src="'+esc(u)+'" alt="Фото ремонта '+(i+1)+'" loading="lazy"></a>').join("")+'</div>';
+  }
+  function caseHtml(item,compact=false){
+    const title=[item.brand,item.model,item.year].filter(Boolean).join(" ");
+    const status='<span class="badge '+(item.is_published?"published":"draft")+'">'+(item.is_published?"✓ Опубликовано":"◷ Черновик")+'</span>';
+    const details=compact
+      ? '<div class="case-summary"><div class="case-detail"><strong>Симптом</strong>'+esc(item.symptom)+'</div><div class="case-detail solution"><strong>Решение</strong>'+esc(item.solution)+'</div></div>'
+      : '<div class="case-summary"><div class="case-detail"><strong>Симптомы</strong>'+esc(item.symptom)+'</div><div class="case-detail"><strong>Проверки</strong>'+esc(item.checks_performed)+'</div><div class="case-detail"><strong>Причина</strong>'+esc(item.confirmed_cause)+'</div><div class="case-detail solution"><strong>Решение</strong>'+esc(item.solution)+'</div></div>';
+    const gen=carGenerations.find(x=>String(x.id)===String(item.car_generation_id));const catEngine=carEngines.find(x=>String(x.id)===String(item.car_engine_id));
+    const adminActions=isAdmin()?'<div class="form-actions">'+(!item.is_published?'<button class="btn success small" data-publish-id="'+esc(item.id)+'" type="button">✓ Опубликовать</button>':'')+'<button class="btn danger small" data-delete-id="'+esc(item.id)+'" type="button">🗑 Удалить запись</button></div>':'';
+    return '<article class="case-card"><div class="case-card-head"><div><h3>🚘 '+esc(title)+'</h3><div class="case-meta">'+(gen?'▦ '+esc(gen.name)+' · ':'')+(item.engine?'⚙ '+esc(item.engine)+(catEngine&&catEngine.engine_code?' ('+esc(catEngine.engine_code)+')':'')+' · ':'')+(item.error_code?'DTC: '+esc(item.error_code)+' · ':'')+(item.created_at?'🕒 '+esc(dateText(item.created_at)):'')+'</div></div>'+status+'</div>'+details+photosHtml(item)+adminActions+'</article>';
+  }
+  function render() {
+    updateBrandFilter();
+    const term=appliedSearch.trim().toLocaleLowerCase("ru"),brand=$("brandFilter").value,model=$("modelFilter").value,generation=$("generationFilter").value,engine=$("engineFilter").value,sort=$("sortSelect").value;
+    let filtered=cases.filter(x=>(!term||searchText(x).includes(term))&&(!brand||x.brand===brand)&&(!model||x.model===model)&&(!generation||String(x.car_generation_id||"")===generation)&&(!engine||String(x.car_engine_id||"")===engine));
+    if(sort==="oldest")filtered.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    else if(sort==="brand")filtered.sort((a,b)=>(a.brand||"").localeCompare(b.brand||"","ru"));
+    else filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    $("caseCount").textContent="Найдено: "+filtered.length+" из "+cases.length+" случаев";
+    $("casesList").innerHTML=filtered.length?filtered.map(x=>caseHtml(x)).join(""):'<div class="empty">⌕<br><strong>Ничего не найдено</strong><br>Измените запрос или сбросьте фильтры.</div>';
+    $("statTotal").textContent=cases.length;
+    $("statBrands").textContent=new Set(cases.map(x=>x.brand).filter(Boolean)).size;
+    $("statPhotos").textContent=cases.filter(x=>Array.isArray(x.photos)&&x.photos.length>0).length;
+    $("recentCases").innerHTML=cases.length?cases.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,3).map(x=>caseHtml(x,true)).join(""):'<div class="empty">Пока нет доступных случаев.<br>Добавьте первый ремонт или обновите базу.</div>';
+  }
+  async function loadCases() {
+    const seq=++loadSequence;hide("listMessage");
+    if (!currentUser) {
+      cases=[];carBrands=[];carModels=[];carGenerations=[];carEngines=[];
+      $("brand").innerHTML="<option value=\"\">Войдите для загрузки марок</option>";$("model").innerHTML="<option value=\"\">Сначала выберите марку</option>";$("model").disabled=true;
+      $("carsBrand").innerHTML="<option value=\"\">Войдите для просмотра</option>";$("carsModel").innerHTML="<option value=\"\">Сначала выберите марку</option>";$("carsModel").disabled=true;
+      $("casesList").innerHTML='<div class="empty">Для просмотра базы зарегистрируйтесь или войдите в аккаунт.</div>';
+      $("recentCases").innerHTML='<div class="empty">Войдите в аккаунт, чтобы просматривать случаи ремонта.</div>';
+      $("caseCount").textContent="";
+      $("statTotal").textContent="—"; $("statBrands").textContent="—"; $("statPhotos").textContent="—";
+      return;
+    }
+    $("casesList").innerHTML='<div class="empty">Загружаем базу…</div>';
+    // Каталог загружается независимо от списка ремонтов.
+    await loadVehicleCatalog();
+    const {data,error}=await client.from("repair_cases").select("id,brand,model,year,engine,car_model_id,car_generation_id,car_engine_id,error_code,symptom,checks_performed,confirmed_cause,solution,is_published,created_at,created_by,photos");
+    if(seq!==loadSequence)return;
+    if(error){cases=[];$("casesList").innerHTML="";$("recentCases").innerHTML="";$("caseCount").textContent="";message("listMessage","Не удалось загрузить базу: "+error.message,"error");$("statTotal").textContent="—";$("statBrands").textContent="—";$("statPhotos").textContent="—";return;}
+    cases=data||[];render();renderCarsCases();
+  }
+  async function publishCase(id,button) {
+    if(!isAdmin())return message("listMessage","Публиковать случаи может только администратор.","error");
+    button.disabled=true;button.textContent="Публикуем…";
+    try{const {error}=await client.from("repair_cases").update({is_published:true}).eq("id",id);if(error)throw error;message("listMessage","Случай опубликован.","success");await loadCases();}
+    catch(e){button.disabled=false;button.textContent="✓ Опубликовать";message("listMessage",e.message||"Не удалось опубликовать случай.","error");}
+  }
+  async function deleteCase(id,button) {
+    if(!isAdmin())return message("listMessage","Удалять случаи может только администратор.","error");
+    const item=cases.find(x=>String(x.id)===String(id));
+    if(!item)return message("listMessage","Запись не найдена. Обновите базу.","error");
+    const title=[item.brand,item.model,item.year].filter(Boolean).join(" ")||"без названия";
+    if(!window.confirm("Удалить запись «"+title+"»? Это действие нельзя отменить."))return;
+    button.disabled=true;button.textContent="Удаляем…";
+    try{
+      const {error}=await client.from("repair_cases").delete().eq("id",id);
+      if(error)throw error;
+      // Попытка удалить связанные фотографии из публичного bucket. Если Storage-политика запрещает удаление,
+      // запись ремонта всё равно удалена; возможные файлы останутся в bucket до отдельной очистки.
+      const paths=(Array.isArray(item.photos)?item.photos:[]).map(url=>{
+        try{const u=new URL(url);const marker="/storage/v1/object/public/"+PHOTO_BUCKET+"/";const i=u.pathname.indexOf(marker);return i>=0?decodeURIComponent(u.pathname.slice(i+marker.length)):null;}catch(_){return null;}
+      }).filter(Boolean);
+      if(paths.length){const result=await client.storage.from(PHOTO_BUCKET).remove(paths);if(result.error)console.warn("Запись удалена, но фотографии не удалось удалить из Storage:",result.error.message);}
+      message("listMessage","Запись «"+title+"» удалена.","success");
+      await loadCases();
+    }catch(e){button.disabled=false;button.textContent="🗑 Удалить запись";message("listMessage",e.message||"Не удалось удалить запись. Проверьте RLS-политику администратора.","error");}
+  }
+
+  function runSearch(value) {
+    if (!currentUser) { goView("database"); return; }
+    appliedSearch=value||"";$("searchInput").value=appliedSearch;
+    $("brandFilter").value="";goView("database");render();
+  }
+  $("homeSearchBtn").addEventListener("click",()=>runSearch($("homeSearch").value));
+  $("homeSearch").addEventListener("keydown",e=>{if(e.key==="Enter")runSearch($("homeSearch").value);});
+  $("searchBtn").addEventListener("click",()=>{appliedSearch=$("searchInput").value;render();});
+  $("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter"){appliedSearch=$("searchInput").value;render();}});
+  $("clearFiltersBtn").addEventListener("click",()=>{$("searchInput").value="";$("homeSearch").value="";$("brandFilter").value="";$("modelFilter").value="";$("generationFilter").value="";$("engineFilter").value="";$("sortSelect").value="newest";appliedSearch="";render();});
+  $("brandFilter").addEventListener("change",()=>{$("modelFilter").value="";$("generationFilter").value="";$("engineFilter").value="";updateModelFilter();render();});$("modelFilter").addEventListener("change",()=>{$("generationFilter").value="";$("engineFilter").value="";updateGenerationFilter();render();});$("generationFilter").addEventListener("change",()=>{$("engineFilter").value="";updateEngineFilter();render();});$("engineFilter").addEventListener("change",render);$("sortSelect").addEventListener("change",render);
+  $("brand").addEventListener("change",()=>{updateModelOptions($("brand"),$("model"));updateGenerationOptions($("model"),$("generation"));updateEngineOptions($("generation"),$("catalogEngine"));});
+  $("model").addEventListener("change",()=>{updateGenerationOptions($("model"),$("generation"));updateEngineOptions($("generation"),$("catalogEngine"));});
+  $("generation").addEventListener("change",()=>updateEngineOptions($("generation"),$("catalogEngine")));
+  $("carsBrand").addEventListener("change",()=>{updateModelOptions($("carsBrand"),$("carsModel"));updateGenerationOptions($("carsModel"),$("carsGeneration"));updateEngineOptions($("carsGeneration"),$("carsEngine"));renderCarsCases();});
+  $("carsModel").addEventListener("change",()=>{updateGenerationOptions($("carsModel"),$("carsGeneration"));updateEngineOptions($("carsGeneration"),$("carsEngine"));renderCarsCases();});
+  $("carsGeneration").addEventListener("change",()=>{updateEngineOptions($("carsGeneration"),$("carsEngine"));renderCarsCases();});
+  $("carsEngine").addEventListener("change",renderCarsCases);
+  $("reloadBtn").addEventListener("click",loadCases);$("dashboardReload").addEventListener("click",loadCases);
+  $("viewAllBtn").addEventListener("click",()=>goView("database"));$("backToDatabaseBtn").addEventListener("click",()=>goView("database"));$("topAddBtn").addEventListener("click",()=>goView("add"));$("topHomeBtn").addEventListener("click",()=>{if(currentUser)logout();else goView("landing");});
+  $("caseForm").addEventListener("submit",saveCase);
+  $("resetFormBtn").addEventListener("click",()=>{
+    if(isSaving)return;
+    $("caseForm").reset();cleanupPreviews();selectedPhotos=[];renderPreview();hide("photoMessage");hide("formMessage");
+  });
+  $("authForm").addEventListener("submit",event=>{event.preventDefault();if(preferredAuthMode==="login"&&!currentUser)login();});
+  $("signupBtn").addEventListener("click",signup);$("logoutBtn").addEventListener("click",logout);
+  $("resetPasswordBtn").addEventListener("click",requestPasswordReset);$("saveNewPasswordBtn").addEventListener("click",saveNewPassword);
+  $("authPassword").addEventListener("keydown",e=>{if(e.key==="Enter"&&!currentUser)login();});
+  function handleCaseAction(e){const del=e.target.closest("[data-delete-id]");if(del){deleteCase(del.dataset.deleteId,del);return;}const pub=e.target.closest("[data-publish-id]");if(pub)publishCase(pub.dataset.publishId,pub);}
+  $("casesList").addEventListener("click",handleCaseAction);
+  $("recentCases").addEventListener("click",e=>{const del=e.target.closest("[data-delete-id]");if(del){deleteCase(del.dataset.deleteId,del);return;}const pub=e.target.closest("[data-publish-id]");if(pub){goView("database");setTimeout(()=>{const target=$("casesList").querySelector('[data-publish-id="'+CSS.escape(pub.dataset.publishId)+'"]');if(target)target.click();},0);}});
+  client.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;updateAuthUI();loadCases();});
+
+  async function init() {
+    const params=new URLSearchParams(window.location.search),hash=new URLSearchParams(window.location.hash.replace(/^#/,""));
+    if(params.get("code")){
+      const {error}=await client.auth.exchangeCodeForSession(params.get("code"));
+      if(error)message("authMessage","Не удалось открыть ссылку подтверждения или восстановления: "+error.message,"error");
+      else window.history.replaceState({},document.title,window.location.pathname);
+    }
+    if(hash.get("type")==="recovery"){goView("account");$("resetPanel").classList.remove("hidden");}
+    await refreshUser();await loadCases();
+    if(hash.get("type")==="recovery") { goView("account"); $("resetPanel").classList.remove("hidden"); }
+    else if(currentUser) goView("database");
+    else goView("landing");
+  }
+  init();
+})();
+</script>
+</body>
+</html>
